@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
-import { getUsers, User } from "../api/users";
+import { getUsers, getUsersCount, User } from "../api/users";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+
+const pageSize = 4;
 
 export const Users = () => {
   const [data, setData] = useState<User[]>();
+  const { data: usersCount } = useQuery("usersCount", getUsersCount);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const users = await getUsers(1);
+      const users = await getUsers(0, pageSize);
       setData(users);
     };
     fetchData();
@@ -17,15 +24,15 @@ export const Users = () => {
     <Table
       pagination={{
         onChange: async page => {
-          const users = await getUsers(page);
+          const users = await getUsers((page - 1) * pageSize, pageSize);
           setData(users);
         },
-        pageSize: 4,
-        total: 10
+        pageSize,
+        total: usersCount
       }}
-      onRow={({ id }, rowIndex) => {
+      onRow={({ id }) => {
         return {
-          onClick: event => console.log(`clicked row ${rowIndex} with id ${id}`)
+          onClick: event => navigate(`/posts/${id}`)
         };
       }}
       dataSource={data}
