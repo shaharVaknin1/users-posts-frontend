@@ -7,8 +7,16 @@ export interface User {
   address: string;
 }
 
-export const getUsers = async (page: number): Promise<User[]> => {
-  const response = await axios.get(`http://localhost:3001/users?page=${page}`);
+export const getUsersCount = async (): Promise<number> => {
+  const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/count`);
+  const count: number = response.data.count;
+  return count;
+};
+
+export const getUsers = async (offset: number, limit: number): Promise<User[]> => {
+  const response = await axios.get(
+    `${process.env.REACT_APP_API_URL}/users?offset=${offset}&limit=${limit}`
+  );
   const users: User[] = response.data.map(
     ({
       name,
